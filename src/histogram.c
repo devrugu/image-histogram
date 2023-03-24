@@ -156,16 +156,50 @@ int pmf_ciz(double pmf[])
 
 int normalDagilim_ciz(double normalDagilim[])
 {
-    double xs[256];
+    double xs[257];
+    double ys[257];
 
     for (int i = 0; i < 255; i++)
         xs[i] = i;
 
+    for (int i = 0; i < 254; i++)
+        ys[i] = normalDagilim[i];
+
+    ys[255] = normalDagilim[255];
+
     _Bool success;
+	StringReference *errorMessage;
+
+	ScatterPlotSeries *series = GetDefaultScatterPlotSeriesSettings();
+	series->xs = xs;
+	series->xsLength = 256;
+	series->ys = ys;
+	series->ysLength = 256;
+	//series->linearInterpolation = true;
+	//series->lineType = L"dotted";
+	//series->lineTypeLength = wcslen(series->lineType);
+	series->lineThickness = 1;
+	series->color = GetGray(1);
+    
+
+	ScatterPlotSettings *settings = GetDefaultScatterPlotSettings();
+	settings->width = 1000;
+	settings->height = 600;
+	settings->autoBoundaries = true;
+	settings->autoPadding = true;
+	settings->title = L"Normal Dagilim";
+	settings->titleLength = wcslen(settings->title);
+	settings->xLabel = L"X";
+	settings->xLabelLength = wcslen(settings->xLabel);
+	settings->yLabel = L"P(X)";
+	settings->yLabelLength = wcslen(settings->yLabel);
+	ScatterPlotSeries *s [] = {series};
+	settings->scatterPlotSeries = s;
+	settings->scatterPlotSeriesLength = 1;
 
 	RGBABitmapImageReference *canvasReference = CreateRGBABitmapImageReference();
-	StringReference *errorMessage = CreateStringReference(L"", 0);
-	success = DrawScatterPlot(canvasReference, 1000, 600, xs, 256, normalDagilim, 256, errorMessage);
+	errorMessage = (StringReference *)malloc(sizeof(StringReference));
+	success = DrawScatterPlotFromSettings(canvasReference, settings, errorMessage);
 
 	if(success){
 		size_t length;
